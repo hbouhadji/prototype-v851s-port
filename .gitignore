@@ -15,6 +15,10 @@ stage1/logs/*
 !stage1/logs/ram-test-result.json
 !stage1/logs/ddr-awboot-result.json
 !stage1/logs/usb-shell.log
+!stage1/logs/network-check.log
+!stage1/logs/network-remote-state.log
+!stage1/logs/network-usb-shell.log
+!stage1/logs/network-validation.json
 
 .DS_Store
 __pycache__/

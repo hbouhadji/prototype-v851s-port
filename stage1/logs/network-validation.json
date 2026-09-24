@@ -1,0 +1,33 @@
+{
+  "time_utc": "2026-09-24T23:35:17+00:00",
+  "status": "hardware_validated",
+  "soc": "Allwinner V851/V853 FEL ID 0x00188600",
+  "usb_vid_pid": "1d6b:0104",
+  "macos_cdc_ncm_interface": "en22",
+  "macos_dhcp_ipv4": "10.77.0.2",
+  "device_usb_ipv4": "10.77.0.1/24",
+  "device_loopback_ipv4": "127.0.0.1/8",
+  "dhcp_server": "BusyBox udhcpd",
+  "ssh_server": "Dropbear 2026.94, Ed25519 client key",
+  "validation": [
+    "ACM BusyBox shell",
+    "CDC-NCM USB enumeration",
+    "DHCP lease",
+    "ICMP ping",
+    "SSH login and remote command",
+    "lo and usb0 addresses",
+    "udhcpd and Dropbear processes"
+  ],
+  "evidence": [
+    "logs/network-usb-shell.log",
+    "logs/network-check.log",
+    "logs/network-remote-state.log"
+  ],
+  "images": {
+    "zImage": "625052689cab29e8fcb8a68be5437a1090108bff4a1844cabce801b340651745",
+    "board.dtb": "58a49c77ea21e415505dead6c1e2e438b4497f3c28a308f13d1db77c18117499",
+    "initramfs.cpio.gz": "cbb05886c74942a7aa6363ae0a94bb4d2b61e32d499cb29dc4846c3f2840d745",
+    "launch.bin": "9a99cf601f9a44f6b8b08cfff6ffd0febed6ba132736bc6a6a81bc98b56355b2"
+  },
+  "flash_writes_during_ram_boot": false
+}

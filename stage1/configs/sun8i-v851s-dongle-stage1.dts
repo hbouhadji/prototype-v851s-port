@@ -7,7 +7,7 @@
     /delete-node/ thermal-zones;
     aliases { serial0 = &uart0; };
     chosen {
-        bootargs = "rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=8 ignore_loglevel clk_ignore_unused panic=0 g_serial.use_acm=1";
+        bootargs = "rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=8 ignore_loglevel clk_ignore_unused panic=0";
         linux,initrd-start = <0x44000000>;
         linux,initrd-end = <0x44000000>; /* patched by build script */
     };

@@ -1,6 +1,6 @@
-# V85x stage 1 — Linux en RAM, BusyBox et console USB
+# V85x stage 1 — Linux en RAM, BusyBox et USB ACM + CDC-NCM
 
-État au 25 septembre 2026 : **validé sur le dongle**. Les 128 Mio passent deux tests complets sans cache/MMU, Linux 6.13-rc1 démarre en RAM et le shell BusyBox répond par `g_serial` sur `/dev/cu.usbmodem1101`. Le journal `logs/usb-shell.log` contient `uname`, `/proc/meminfo`, les logs de démarrage et un marqueur de commande unique.
+État au 25 septembre 2026 : **validé sur le dongle**. Les 128 Mio passent deux tests complets sans cache/MMU. Linux 6.13-rc1 démarre en RAM avec un gadget USB composite ACM + CDC-NCM : console BusyBox, bail DHCP pour le Mac, ping et SSH Dropbear par clé ont été vérifiés. Les journaux `logs/network-*.log` et `logs/network-validation.json` conservent les preuves. L’ancien shell `g_serial` est documenté dans `logs/usb-shell.log`.
 
 **État actuel de la flash : le 24 septembre 2026, à la demande explicite de l’utilisateur, la partition boot0 (premier Mio) a été sauvegardée puis effacée pour permettre le retour automatique en FEL.** La relecture confirme 1 Mio entièrement à `0xff` et les 3 Mio d’U-Boot strictement inchangés. Après `xfel reset`, FEL répond avec `ID=0x00188600`, scratchpad `0x00040400`. Le retour automatique en FEL après coupure physique est également confirmé le 25 septembre 2026. Le firmware d’origine ne peut plus démarrer tant que boot0 n’est pas restauré. Voir [sauvegarde et restauration](BOOT0-RECOVERY.md).
 
@@ -12,6 +12,7 @@ Le FES V0.16 atteignait la fin de son initialisation, mais les lectures mémoire
 - Patch `linux-6.13-rc1-wip.patch` d’[awboot 5380c00f](https://github.com/szemzoa/awboot/tree/5380c00fc67c975433f25c57fb481aa2b91aebf8), appliqué sans rejet.
 - Ajout local de `allwinner,sun8i-v853` à la liste des machines ARM (`configs/0001-v853-machine.patch`).
 - BusyBox 1.37.0, statique ARM EABI hard-float. Accélérations SHA x86 désactivées pour cette compilation ARM.
+- [Dropbear 2026.94](https://matt.ucc.asn.au/dropbear/dropbear.html), statique ARM, authentification par clé seulement. Une clé hôte et une clé cliente de développement sont conservées localement dans `out/ssh/` entre deux builds.
 - [xfel 445e8aef](https://github.com/xboot/xfel/tree/445e8aefe6914c85817cc9bd1d201629364b0ec6), à placer dans `src/xfel` et à modifier avec `configs/0002-xfel-usb-timeout.patch` pour le test mémoire long.
 - Le chemin matériel validé utilise le pilote DDR C d’awboot en SRAM. Les diagnostics antérieurs utilisent aussi un initialiseur extrait de xfel avec les 24 paramètres du boot0.
 - Trampoline ARM minimal fondé sur le protocole de démarrage Linux et les registres V85x utilisés par awboot. Il préserve la DRAM, traite les caches et remet l’USB à zéro ; il ne reprend pas le chemin PSCI T113 du `main.c` actuel d’awboot.
@@ -37,15 +38,16 @@ python3 stage1/tools/prepare-ddr.py stage1/boot/xfel-v851_v853.c \
 ```sh
 tar -xzf stage1/downloads/linux-v6.13-rc1.tar.gz -C stage1/src
 tar -xjf stage1/downloads/busybox-1.37.0.tar.bz2 -C stage1/src
+tar -xjf stage1/downloads/dropbear-2026.94.tar.bz2 -C stage1/src
 patch -d stage1/src/linux-6.13-rc1 -p1 < stage1/downloads/linux-6.13-rc1-wip.patch
 git clone https://github.com/xboot/xfel.git stage1/src/xfel
 git -C stage1/src/xfel checkout 445e8aefe6914c85817cc9bd1d201629364b0ec6
 patch -d stage1/src/xfel -p1 < stage1/configs/0002-xfel-usb-timeout.patch
 ```
 
-Les archives Linux 6.13-rc1 et BusyBox 1.37.0 sont à obtenir avant ces commandes ; leurs SHA-256 figurent dans `downloads/SHA256SUMS`. Le dépôt Git exclut les sources téléchargées, les binaires construits et le dump NAND. Les sauvegardes boot0/U-Boot restent locales : leur présence et leur somme SHA-256 doivent être contrôlées avant toute restauration.
+Les archives Linux 6.13-rc1, BusyBox 1.37.0 et Dropbear 2026.94 sont à obtenir avant ces commandes ; leurs SHA-256 figurent dans `downloads/SHA256SUMS`. Le dépôt Git exclut les sources téléchargées, les binaires construits, les clés SSH et le dump NAND. Les sauvegardes boot0/U-Boot restent locales : leur présence et leur somme SHA-256 doivent être contrôlées avant toute restauration.
 
-Les options indispensables sont contrôlées avant compilation. MTD, SPI, MMC et les modules sont désactivés. Le système racine est un initramfs ; `/init` monte les pseudo-systèmes de fichiers et ouvre un shell sur `ttyGS0`.
+Les options indispensables sont contrôlées avant compilation. MTD, SPI, MMC et les modules sont désactivés. Le système racine est un initramfs ; `/init` crée un gadget composite ACM + CDC-NCM, ouvre un shell sur `ttyGS0`, monte `lo`, donne `10.77.0.1/24` à `usb0`, démarre `udhcpd` puis Dropbear. DHCP attribue au Mac une adresse de `10.77.0.2` à `10.77.0.20`. Dropbear accepte seulement la clé `out/ssh/client_ed25519` ; la clé privée reste sur l’hôte. `CONFIG_COMPAT_32BIT_TIME` est requis par la libc ARM de Dropbear pour `select()`.
 
 ## Essais matériels, dans cet ordre
 
@@ -74,11 +76,23 @@ python3 stage1/tools/ram-boot.py boot
 | Initramfs externe | `0x44000000` | Avant `0x47f00000` |
 | Marqueur de validation mémoire | `0x47fff000` | 32 octets |
 
-Le gadget ACM attendu utilise `0525:a4a7`. Sur macOS, chercher un nouveau `/dev/cu.usbmodem*`. La disparition de `1f3a:efe8` seule n’est pas un succès. Il faut lire la bannière puis exécuter `uname -a`, `cat /proc/meminfo`, `dmesg` et une commande avec une sortie identifiable.
+Le nouveau gadget composite utilise `1d6b:0104` et doit offrir à la fois un nouveau `/dev/cu.usbmodem*` et une interface Ethernet CDC-NCM sur macOS. La disparition de `1f3a:efe8` seule n’est pas un succès. Il faut vérifier la console, la configuration DHCP du Mac et une connexion SSH réelle. La console reste utile si le réseau ne démarre pas.
+
+Pour vérifier DHCP, le ping, SSH, `lo`, `usb0` et les deux services, trouver le nom `enX` de l’interface NCM dans les réglages Réseau de macOS, puis :
+
+```sh
+sh stage1/tools/network-check.sh enX
+```
+
+Si macOS n’obtient pas de bail, configurer temporairement l’interface NCM en `10.77.0.2/24`, vérifier `ping 10.77.0.1`, puis exécuter :
+
+```sh
+ssh -i stage1/out/ssh/client_ed25519 -o IdentitiesOnly=yes root@10.77.0.1
+```
 
 ## Vérifications déjà faites et limites
 
-- Le patch s’applique et Linux compile avec CCU V853, pinctrl, PHY USB, MUSB Sunxi, `g_serial`, console série gadget et timer ARM.
+- Le patch s’applique et Linux compile avec CCU V853, pinctrl, PHY USB, MUSB Sunxi, gadget composite ACM/NCM, console série gadget et timer ARM. Le composite a été vérifié sur le dongle.
 - BusyBox est un exécutable ARM statique sans segment INTERP.
 - L’archive initramfs contient `/init` exécutable, les liens BusyBox nécessaires, `/dev/console` (5,1) et `/dev/null` (1,3).
 - Le pilote DDR C fait 8 616 octets ; les autres programmes SRAM restent dans leurs régions réservées.
@@ -86,7 +100,7 @@ Le gadget ACM attendu utilise `0525:a4a7`. Sur macOS, chercher un nouveau `/dev/
 - Le code Linux conserve les horloges non utilisées (`clk_ignore_unused`). Le timer ARM est validé à 24 MHz. La DDR utilise les paramètres 936 MHz du firmware ; les autres périphériques ne sont pas validés par cet essai.
 - Le dump complet et le boot0 ne sont jamais exécutés tels quels : le chemin actuel utilise le pilote DDR C d’awboot, avec les paramètres du boot0.
 
-## Résultat matériel du 25 septembre 2026
+## Résultat matériel initial du 25 septembre 2026 (`g_serial`)
 
 - DDR awboot V0.24 : 128 Mio, trois régions de 4 Kio vérifiées et relues sans alias.
 - Test SRAM : deux passes adresse XOR masque sur `0x40000000..0x47ffffff`, PASS, phase 4, cache de données/MMU désactivés. Le marqueur de session est relu avant lancement.
@@ -96,14 +110,21 @@ Le gadget ACM attendu utilise `0525:a4a7`. Sur macOS, chercher un nouveau `/dev/
 - Shell : BusyBox ash répond aux commandes via `/dev/cu.usbmodem1101`. Le marqueur `SHELL_PROOF_b3aa1217bdb3a052` est une sortie de commande et n’apparaît pas littéralement dans l’entrée envoyée.
 - Preuves : `logs/stage1-validation.json`, `logs/ram-validated.json`, `logs/last-boot-images.json`, `logs/usb-shell.log`.
 
-Le dongle est laissé sous Linux. Pour ouvrir la console sur ce Mac :
+## Résultat matériel réseau du 25 septembre 2026 (ACM + CDC-NCM)
+
+- Le gadget `1d6b:0104` s’énumère sur macOS : console `/dev/cu.usbmodemV851S_RAM_0011` et interface CDC-NCM `en22`.
+- `udhcpd` attribue `10.77.0.2/24` au Mac ; le dongle utilise `10.77.0.1/24` sur `usb0` et `127.0.0.1/8` sur `lo`.
+- Deux pings sur deux répondent. Dropbear 2026.94 accepte la clé cliente générée et exécute une commande SSH distante (`NETWORK_PROOF_OK`). Les processus `udhcpd` et `dropbear` sont présents.
+- Preuves : `logs/network-validation.json`, `logs/network-usb-shell.log`, `logs/network-check.log`, `logs/network-remote-state.log`.
+
+Le dongle est laissé sous ce Linux en RAM. Pour ouvrir la console sur ce Mac :
 
 ```sh
-screen /dev/cu.usbmodem1101 115200
+screen /dev/cu.usbmodemV851S_RAM_0011 115200
 ```
 
 Une coupure USB perd ce Linux en RAM et ramène en FEL, puisque boot0 est effacé. Pour reproduire, exécuter `ddr-awboot`, `test-ram`, puis `boot` dans cet ordre. Lancer `python3 stage1/tools/usb-shell-check.py` avant `boot` pour attendre un nouveau port ACM et capturer automatiquement la preuve du shell. Le nom du port peut changer.
 
-Le test mémoire recharge le watchdog par Mio et l’arrête lui-même avant de rendre FEL. L’hôte attend jusqu’à 120 secondes la commande USB suivante. Le lancement Linux arme un watchdog de 16 secondes ; `/init` l’arrête après configuration du gadget USB par l’hôte. Cette récupération requiert boot0 effacé. Ramoops s’enregistre correctement, mais la conservation de son contenu après reset n’a pas été éprouvée.
+Le test mémoire recharge le watchdog par Mio et l’arrête lui-même avant de rendre FEL. L’hôte attend jusqu’à 120 secondes la commande USB suivante. Le lancement Linux arme un watchdog de 16 secondes ; `/init` l’arrête après configuration du gadget USB par l’hôte. Cette récupération requiert boot0 effacé. Ramoops a conservé les journaux après plusieurs resets watchdog pendant le débogage du gadget ; sa tenue après coupure électrique n’a pas été vérifiée.
 
-Ce résultat valide le démarrage Linux en RAM et la console USB. Wi-Fi, vidéo, audio et les fonctions applicatives du dongle n’ont pas été testés. MTD/SPI/MMC sont désactivés ; aucune écriture flash n’a été faite pendant ces essais RAM.
+Ce résultat valide le démarrage Linux en RAM, la console USB et le réseau USB avec DHCP et SSH. Wi-Fi, vidéo, audio et les fonctions applicatives du dongle n’ont pas été testés. MTD/SPI/MMC sont désactivés ; aucune écriture flash n’a été faite pendant ces essais RAM.

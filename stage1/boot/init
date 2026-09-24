@@ -1,18 +1,65 @@
 #!/bin/sh
+set -eu
 export PATH=/bin:/sbin:/usr/bin:/usr/sbin
 mount -t devtmpfs devtmpfs /dev
 mkdir -p /dev/pts /proc /sys /tmp /run
 mount -t proc proc /proc
 mount -t sysfs sysfs /sys
+mkdir -p /sys/kernel/config
 mount -t devpts devpts /dev/pts
 mount -t tmpfs tmpfs /tmp
+mount -t configfs configfs /sys/kernel/config
+exec 2>/dev/kmsg
 echo "V851S RAM stage1: init started" > /dev/kmsg
+
+# One configuration exposes both the recovery console and CDC-NCM.
+G=/sys/kernel/config/usb_gadget/v851s
+mkdir -p "$G"
+printf '0x1d6b\n' > "$G/idVendor"
+printf '0x0104\n' > "$G/idProduct"
+printf '0xef\n' > "$G/bDeviceClass"
+printf '0x02\n' > "$G/bDeviceSubClass"
+printf '0x01\n' > "$G/bDeviceProtocol"
+echo "V851S init: descriptors set" > /dev/kmsg
+mkdir -p "$G/strings/0x409" "$G/configs/c.1/strings/0x409"
+printf 'V851S-RAM-001\n' > "$G/strings/0x409/serialnumber"
+printf 'Catplay Labs\n' > "$G/strings/0x409/manufacturer"
+printf 'V851S RAM console and network\n' > "$G/strings/0x409/product"
+printf 'ACM and CDC-NCM\n' > "$G/configs/c.1/strings/0x409/configuration"
+echo "V851S init: strings set" > /dev/kmsg
+mkdir "$G/functions/acm.usb0"
+echo "V851S init: ACM created" > /dev/kmsg
+mkdir "$G/functions/ncm.usb0"
+echo "V851S init: NCM created" > /dev/kmsg
+printf 'usb%%d\n' > "$G/functions/ncm.usb0/ifname"
+echo "V851S init: NCM ifname set" > /dev/kmsg
+printf '02:1a:85:10:00:01\n' > "$G/functions/ncm.usb0/dev_addr"
+printf '02:1a:85:10:00:02\n' > "$G/functions/ncm.usb0/host_addr"
+echo "V851S init: NCM MACs set" > /dev/kmsg
+ln -s "$G/functions/acm.usb0" "$G/configs/c.1/acm.usb0"
+ln -s "$G/functions/ncm.usb0" "$G/configs/c.1/ncm.usb0"
+echo "V851S init: functions linked" > /dev/kmsg
+
+while [ ! -d /sys/class/udc ] || [ -z "$(ls /sys/class/udc 2>/dev/null)" ]; do sleep 1; done
+UDC=$(ls /sys/class/udc | head -n 1)
+printf '%s\n' "$UDC" > "$G/UDC"
+echo "V851S RAM stage1: ACM+NCM bound to $UDC" > /dev/kmsg
 while [ ! -c /dev/ttyGS0 ]; do sleep 1; done
 # Keep automatic FEL recovery until the host has enumerated the USB gadget.
 while ! grep -q configured /sys/class/udc/*/state 2>/dev/null; do sleep 1; done
 devmem 0x020500b8 32 0x16aa0000
+
+ip link set lo up || echo "V851S: failed to bring up lo" > /dev/kmsg
+ip addr add 10.77.0.1/24 dev usb0 || echo "V851S: failed to assign usb0 address" > /dev/kmsg
+ip link set usb0 up || echo "V851S: failed to bring up usb0" > /dev/kmsg
+udhcpd /etc/udhcpd.conf || echo "V851S: udhcpd failed" > /dev/kmsg
+dropbear -j -k -P /run/dropbear.pid -p 10.77.0.1:22 \
+    -r /etc/dropbear/dropbear_ed25519_host_key > /dev/kmsg 2>&1 || \
+    echo "V851S: dropbear failed" > /dev/kmsg
+echo "V851S RAM stage1: network startup attempted" > /dev/kmsg
+
 while true; do
-    printf '\r\nV851S RAM stage1 - BusyBox USB shell\r\n' > /dev/ttyGS0
+    printf '\r\nV851S RAM stage1 - USB shell; SSH root@10.77.0.1\r\n' > /dev/ttyGS0
     setsid cttyhack sh -i < /dev/ttyGS0 > /dev/ttyGS0 2>&1
     sleep 1
 done
