@@ -1,6 +1,6 @@
 # V85x stage 1 — Linux en RAM, BusyBox et USB ACM + CDC-NCM
 
-État au 25 septembre 2026 : **validé sur le dongle**. Les 128 Mio passent deux tests complets sans cache/MMU. Linux 6.13-rc1 démarre en RAM avec un gadget USB composite ACM + CDC-NCM : console BusyBox, bail DHCP pour le Mac, ping et SSH Dropbear par clé ont été vérifiés. Les journaux `logs/network-*.log` et `logs/network-validation.json` conservent les preuves. L’ancien shell `g_serial` est documenté dans `logs/usb-shell.log`.
+État au 25 septembre 2026 : **Linux 7.2.7 validé sur le dongle**. Les 128 Mio passent deux tests complets sans cache/MMU. Le noyau démarre en RAM avec un gadget USB composite ACM + CDC-NCM : console BusyBox, bail DHCP pour le Mac, ping et SSH Dropbear par clé ont été vérifiés. Les preuves du portage sont dans `logs/kernel-7.2.7-validation.json`, `logs/usb-shell.log`, `logs/kernel-7.2.7-network.log` et `logs/kernel-7.2.7-remote.log`. Les résultats 6.13 sont conservés dans `logs/network-*` et `logs/usb-shell-6.13.log`.
 
 **État actuel de la flash : le 24 septembre 2026, à la demande explicite de l’utilisateur, la partition boot0 (premier Mio) a été sauvegardée puis effacée pour permettre le retour automatique en FEL.** La relecture confirme 1 Mio entièrement à `0xff` et les 3 Mio d’U-Boot strictement inchangés. Après `xfel reset`, FEL répond avec `ID=0x00188600`, scratchpad `0x00040400`. Le retour automatique en FEL après coupure physique est également confirmé le 25 septembre 2026. Le firmware d’origine ne peut plus démarrer tant que boot0 n’est pas restauré. Voir [sauvegarde et restauration](BOOT0-RECOVERY.md).
 
@@ -8,8 +8,9 @@ Le FES V0.16 atteignait la fin de son initialisation, mais les lectures mémoire
 
 ## Sources et construction
 
-- Linux [v6.13-rc1](https://github.com/torvalds/linux/tree/v6.13-rc1), archive dans `downloads/`.
-- Patch `linux-6.13-rc1-wip.patch` d’[awboot 5380c00f](https://github.com/szemzoa/awboot/tree/5380c00fc67c975433f25c57fb481aa2b91aebf8), appliqué sans rejet.
+- Linux [7.2.7](https://www.kernel.org/pub/linux/kernel/v7.x/), archive dans `downloads/` ; SHA-256 dans `downloads/SHA256SUMS`.
+- `configs/linux-7.2.7-v853-stage1.patch` porte uniquement les éléments V853 nécessaires au stage1 depuis le patch 6.13 d’[awboot 5380c00f](https://github.com/szemzoa/awboot/tree/5380c00fc67c975433f25c57fb481aa2b91aebf8) : DTS, CCU, pinctrl, RTC et PHY USB. Les adaptations 7.2 concernent le nombre de PHY déduit du DT, les drapeaux du pinctrl et `MODULE_IMPORT_NS`. Le patch s’applique sans rejet sur l’archive officielle fraîche.
+- Le patch 6.13 d’origine et l’ancien noyau restent disponibles localement pour comparaison, mais ne sont plus utilisés par `build-linux.sh`.
 - Ajout local de `allwinner,sun8i-v853` à la liste des machines ARM (`configs/0001-v853-machine.patch`).
 - BusyBox 1.37.0, statique ARM EABI hard-float. Accélérations SHA x86 désactivées pour cette compilation ARM.
 - [Dropbear 2026.94](https://matt.ucc.asn.au/dropbear/dropbear.html), statique ARM, authentification par clé seulement. Une clé hôte et une clé cliente de développement sont conservées localement dans `out/ssh/` entre deux builds.
@@ -33,19 +34,18 @@ python3 stage1/tools/prepare-ddr.py stage1/boot/xfel-v851_v853.c \
   firmware-128MiB.bin stage1/out/ddr-stock.bin
 ```
 
-`build-linux.sh` attend les archives déjà extraites dans `src/` et le patch awboot déjà appliqué. Pour repartir d’une extraction neuve :
+`build-linux.sh` attend les archives déjà extraites dans `src/` ; il applique automatiquement le patch V853 et celui de la machine ARM à Linux 7.2.7 si nécessaire. Pour repartir d’une extraction neuve :
 
 ```sh
-tar -xzf stage1/downloads/linux-v6.13-rc1.tar.gz -C stage1/src
+tar -xJf stage1/downloads/linux-7.2.7.tar.xz -C stage1/src
 tar -xjf stage1/downloads/busybox-1.37.0.tar.bz2 -C stage1/src
 tar -xjf stage1/downloads/dropbear-2026.94.tar.bz2 -C stage1/src
-patch -d stage1/src/linux-6.13-rc1 -p1 < stage1/downloads/linux-6.13-rc1-wip.patch
 git clone https://github.com/xboot/xfel.git stage1/src/xfel
 git -C stage1/src/xfel checkout 445e8aefe6914c85817cc9bd1d201629364b0ec6
 patch -d stage1/src/xfel -p1 < stage1/configs/0002-xfel-usb-timeout.patch
 ```
 
-Les archives Linux 6.13-rc1, BusyBox 1.37.0 et Dropbear 2026.94 sont à obtenir avant ces commandes ; leurs SHA-256 figurent dans `downloads/SHA256SUMS`. Le dépôt Git exclut les sources téléchargées, les binaires construits, les clés SSH et le dump NAND. Les sauvegardes boot0/U-Boot restent locales : leur présence et leur somme SHA-256 doivent être contrôlées avant toute restauration.
+Les archives Linux 7.2.7, BusyBox 1.37.0 et Dropbear 2026.94 sont à obtenir avant ces commandes ; leurs SHA-256 figurent dans `downloads/SHA256SUMS`. Le dépôt Git exclut les sources téléchargées, les binaires construits, les clés SSH et le dump NAND. Les sauvegardes boot0/U-Boot restent locales : leur présence et leur somme SHA-256 doivent être contrôlées avant toute restauration.
 
 Les options indispensables sont contrôlées avant compilation. MTD, SPI, MMC et les modules sont désactivés. Le système racine est un initramfs ; `/init` crée un gadget composite ACM + CDC-NCM, ouvre un shell sur `ttyGS0`, monte `lo`, donne `10.77.0.1/24` à `usb0`, démarre `udhcpd` puis Dropbear. DHCP attribue au Mac une adresse de `10.77.0.2` à `10.77.0.20`. Dropbear accepte seulement la clé `out/ssh/client_ed25519` ; la clé privée reste sur l’hôte. `CONFIG_COMPAT_32BIT_TIME` est requis par la libc ARM de Dropbear pour `select()`.
 
@@ -92,7 +92,7 @@ ssh -i stage1/out/ssh/client_ed25519 -o IdentitiesOnly=yes root@10.77.0.1
 
 ## Vérifications déjà faites et limites
 
-- Le patch s’applique et Linux compile avec CCU V853, pinctrl, PHY USB, MUSB Sunxi, gadget composite ACM/NCM, console série gadget et timer ARM. Le composite a été vérifié sur le dongle.
+- Le patch 7.2.7 s’applique à une extraction neuve et Linux compile avec CCU V853, pinctrl, PHY USB, MUSB Sunxi, gadget composite ACM/NCM, console série gadget et timer ARM. Le composite a été vérifié sur le dongle.
 - BusyBox est un exécutable ARM statique sans segment INTERP.
 - L’archive initramfs contient `/init` exécutable, les liens BusyBox nécessaires, `/dev/console` (5,1) et `/dev/null` (1,3).
 - Le pilote DDR C fait 8 616 octets ; les autres programmes SRAM restent dans leurs régions réservées.
@@ -108,7 +108,7 @@ ssh -i stage1/out/ssh/client_ed25519 -o IdentitiesOnly=yes root@10.77.0.1
 - `/init` démarre vers 0,69 seconde dans le journal noyau ; le gadget série est prêt vers 0,65 seconde.
 - Mémoire Linux : `MemTotal: 124412 kB`, sur 128 Mio physiques, après réservations noyau et 1 Mio de ramoops.
 - Shell : BusyBox ash répond aux commandes via `/dev/cu.usbmodem1101`. Le marqueur `SHELL_PROOF_b3aa1217bdb3a052` est une sortie de commande et n’apparaît pas littéralement dans l’entrée envoyée.
-- Preuves : `logs/stage1-validation.json`, `logs/ram-validated.json`, `logs/last-boot-images.json`, `logs/usb-shell.log`.
+- Preuves : `logs/stage1-validation.json`, `logs/ram-validated.json`, `logs/last-boot-images.json`, `logs/usb-shell-6.13.log`.
 
 ## Résultat matériel réseau du 25 septembre 2026 (ACM + CDC-NCM)
 
@@ -117,7 +117,15 @@ ssh -i stage1/out/ssh/client_ed25519 -o IdentitiesOnly=yes root@10.77.0.1
 - Deux pings sur deux répondent. Dropbear 2026.94 accepte la clé cliente générée et exécute une commande SSH distante (`NETWORK_PROOF_OK`). Les processus `udhcpd` et `dropbear` sont présents.
 - Preuves : `logs/network-validation.json`, `logs/network-usb-shell.log`, `logs/network-check.log`, `logs/network-remote-state.log`.
 
-Le dongle est laissé sous ce Linux en RAM. Pour ouvrir la console sur ce Mac :
+## Résultat matériel Linux 7.2.7 du 25 septembre 2026
+
+- Le noyau annonce `7.2.7-v851s-ram-stage1` sur la console ACM et via SSH. Le test complet des 128 Mio a de nouveau réussi avant ce démarrage.
+- Le gadget composite `1d6b:0104` expose la console `/dev/cu.usbmodemV851S_RAM_0011` et CDC-NCM `en22`. Le Mac reçoit `10.77.0.2` par DHCP ; `usb0` vaut `10.77.0.1/24` et `lo` vaut `127.0.0.1/8`.
+- Le ping répond 2/2, et une commande SSH vérifie les adresses IP ainsi que les processus `udhcpd` et `dropbear`.
+- Preuves : `logs/kernel-7.2.7-validation.json`, `logs/usb-shell.log`, `logs/kernel-7.2.7-network.log`, `logs/kernel-7.2.7-remote.log`.
+- `sunxi-sram` signale encore `-95` au démarrage. Cela n’empêche pas le stage1 USB/réseau ; les autres périphériques du SoC ne sont pas couverts par cet essai.
+
+Le dongle est laissé sous Linux 7.2.7 en RAM. Pour ouvrir la console sur ce Mac :
 
 ```sh
 screen /dev/cu.usbmodemV851S_RAM_0011 115200

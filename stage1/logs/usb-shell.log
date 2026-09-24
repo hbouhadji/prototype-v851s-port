@@ -1,17 +1,21 @@
+[    3.993627] V851S RAM stage1: network startup attempted
+[    3.994831] [53] Jan 01 00:00:03 Running in background
 
-~ # uname -a; cat /proc/meminfo; cat /proc/cmdline; dmesg; printf 'SHELL_PROOF_%
-s\n' 'b3aa1217bdb3a052'
-Linux (none) 6.13.0-rc1-v851s-ram-stage1 #5 Thu Sep 24 22:12:39 UTC 2026 armv7l GNU/Linux
-MemTotal:         124412 kB
-MemFree:          118972 kB
-MemAvailable:     117376 kB
+V851S RAM stage1 - USB shell; SSH root@10.77.0.1
+~ #
+~ # uname -a; cat /proc/meminfo; cat /proc/cmdline; dmesg; printf 'SHELL_PROOF_%
+s\n' '83b72fe2728a514a'
+Linux (none) 7.2.7-v851s-ram-stage1 #1 Thu Sep 24 23:48:50 UTC 2026 armv7l GNU/Linux
+MemTotal:         122916 kB
+MemFree:          114860 kB
+MemAvailable:     113300 kB
 Buffers:               0 kB
-Cached:             1464 kB
+Cached:             2404 kB
 SwapCached:            0 kB
-Active:             1340 kB
-Inactive:            228 kB
-Active(anon):       1340 kB
-Inactive(anon):      228 kB
+Active:             2140 kB
+Inactive:            436 kB
+Active(anon):       2140 kB
+Inactive(anon):      436 kB
 Active(file):          0 kB
 Inactive(file):        0 kB
 Unevictable:           0 kB
@@ -20,28 +24,31 @@ SwapTotal:             0 kB
 SwapFree:              0 kB
 Dirty:                 0 kB
 Writeback:             0 kB
-AnonPages:           136 kB
-Mapped:             1252 kB
-Shmem:              1464 kB
-KReclaimable:       1004 kB
-Slab:               3036 kB
-SReclaimable:       1004 kB
-SUnreclaim:         2032 kB
-KernelStack:         168 kB
-PageTables:           36 kB
+AnonPages:           232 kB
+Mapped:             1952 kB
+Shmem:              2404 kB
+KReclaimable:       1056 kB
+Slab:               4428 kB
+SReclaimable:       1056 kB
+SUnreclaim:         3372 kB
+KernelStack:         192 kB
+PageTables:          160 kB
 SecPageTables:         0 kB
 NFS_Unstable:          0 kB
 Bounce:                0 kB
 WritebackTmp:          0 kB
-CommitLimit:       62204 kB
-Committed_AS:       2388 kB
+CommitLimit:       61456 kB
+Committed_AS:       3940 kB
 VmallocTotal:     901120 kB
 VmallocUsed:          16 kB
 VmallocChunk:          0 kB
 Percpu:               32 kB
-rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=8 ignore_loglevel clk_ignore_unused panic=0 g_serial.use_acm=1
+Balloon:               0 kB
+GPUActive:             0 kB
+GPUReclaim:            0 kB
+rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=8 ignore_loglevel clk_ignore_unused panic=0
 [    0.000000] Booting Linux on physical CPU 0x0
-[    0.000000] Linux version 6.13.0-rc1-v851s-ram-stage1 (root@20c71bb5d72d) (arm-linux-gnueabihf-gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40) #5 Thu Sep 24 22:12:39 UTC 2026
+[    0.000000] Linux version 7.2.7-v851s-ram-stage1 (root@1c15ae30c214) (arm-linux-gnueabihf-gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40) #1 Thu Sep 24 23:48:50 UTC 2026
 [    0.000000] CPU: ARMv7 Processor [410fc075] revision 5 (ARMv7), cr=10c53c7d
 [    0.000000] CPU: PIPT / VIPT nonaliasing data cache, VIPT aliasing instruction cache
 [    0.000000] OF: fdt: Machine model: V85x dongle RAM-only stage1
@@ -49,17 +56,17 @@ rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=
 [    0.000000] printk: legacy bootconsole [uart8250] enabled
 [    0.000000] printk: debug: ignoring loglevel setting.
 [    0.000000] Memory policy: Data cache writeback
+[    0.000000] OF: reserved mem: 0x47f00000..0x47ffffff (1024 KiB) map non-reusable ramoops@47f00000
+[    0.000000] CPU: All CPU(s) started in SVC mode.
 [    0.000000] Zone ranges:
 [    0.000000]   Normal   [mem 0x0000000040000000-0x0000000047ffffff]
 [    0.000000] Movable zone start for each node
 [    0.000000] Early memory node ranges
 [    0.000000]   node   0: [mem 0x0000000040000000-0x0000000047ffffff]
 [    0.000000] Initmem setup node 0 [mem 0x0000000040000000-0x0000000047ffffff]
-[    0.000000] OF: reserved mem: 0x47f00000..0x47ffffff (1024 KiB) map non-reusable ramoops@47f00000
-[    0.000000] CPU: All CPU(s) started in SVC mode.
 [    0.000000] pcpu-alloc: s0 r0 d32768 u32768 alloc=1*32768
-[    0.000000] pcpu-alloc: [0] 0 
-[    0.000000] Kernel command line: rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=8 ignore_loglevel clk_ignore_unused panic=0 g_serial.use_acm=1
+[    0.000000] pcpu-alloc: [0] 0
+[    0.000000] Kernel command line: rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=8 ignore_loglevel clk_ignore_unused panic=0
 [    0.000000] printk: log buffer data + meta data: 262144 + 819200 = 1081344 bytes
 [    0.000000] Dentry cache hash table entries: 16384 (order: 4, 65536 bytes, linear)
 [    0.000000] Inode-cache hash table entries: 8192 (order: 3, 32768 bytes, linear)
@@ -67,62 +74,84 @@ rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=
 [    0.000000] mem auto-init: stack:all(zero), heap alloc:off, heap free:off
 [    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
 [    0.000000] NR_IRQS: 16, nr_irqs: 16, preallocated irqs: 16
-[    0.000000] arch_timer: cp15 timer(s) running at 24.00MHz (phys).
+[    0.000000] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
+[    0.000000] arch_timer: cp15 timer running at 24.00MHz (sec-phys).
 [    0.000000] clocksource: arch_sys_counter: mask: 0xffffffffffffff max_cycles: 0x588fe9dc0, max_idle_ns: 440795202592 ns
 [    0.000002] sched_clock: 56 bits at 24MHz, resolution 41ns, wraps every 4398046511097ns
-[    0.008814] Switching to timer-based delay loop, resolution 41ns
-[    0.015690] clocksource: timer: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 79635851949 ns
-[    0.026406] Console: colour dummy device 80x30
-[    0.031374] Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=240000)
-[    0.042805] CPU: Testing write buffer coherency: ok
-[    0.048228] pid_max: default: 32768 minimum: 301
-[    0.053487] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-[    0.061546] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
-[    0.110274] Setting up static identity map for 0x40008240 - 0x4000827c
-[    0.117817] Memory: 122796K/131072K available (2496K kernel code, 905K rwdata, 540K rodata, 152K init, 341K bss, 7844K reserved, 0K cma-reserved)
-[    0.132889] devtmpfs: initialized
-[    0.143158] VFP support v0.3: implementor 41 architecture 2 part 30 variant 7 rev 5
-[    0.151807] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns
-[    0.162671] futex hash table entries: 256 (order: -1, 3072 bytes, linear)
-[    0.170254] pinctrl core: initialized pinctrl subsystem
-[    0.177204] DMA: preallocated 256 KiB pool for atomic coherent allocations
-[    0.187436] printk: legacy console [ramoops-1] enabled
-[    0.193575] pstore: Registered ramoops as persistent store backend
-[    0.200418] ramoops: using 0x100000@0x47f00000, ecc: 0
-[    0.210096] /soc: Fixed dependency cycle(s) with /soc/interrupt-controller@3021000
-[    0.218634] /soc/interrupt-controller@3021000: Fixed dependency cycle(s) with /soc/interrupt-controller@3021000
-[    0.229864] /soc/mixer@5100000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
-[    0.238444] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/lcd-controller@5461000
-[    0.247878] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/mixer@5100000
-[    0.256444] /soc/lcd-controller@5461000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
-[    0.269340] /soc/mixer@5100000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
-[    0.278611] /soc/mixer@5100000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
-[    0.287308] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/lcd-controller@5461000
-[    0.296749] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/mixer@5100000
-[    0.305731] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/lcd-controller@5461000
-[    0.315333] /soc/lcd-controller@5461000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
-[    0.328263] clocksource: Switched to clocksource arch_sys_counter
-[    0.353408] Unpacking initramfs...
-[    0.379932] workingset: timestamp_bits=30 max_order=15 bucket_order=0
-[    0.440153] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
-[    0.462583] UDC core: g_serial: couldn't find an available UDC
-[    0.470405] sun6i-rtc 7090000.rtc: registered as rtc0
-[    0.523969] gpio gpiochip0: Static allocation of GPIO base is deprecated, use dynamic allocation.
-[    0.567998] sun8i-v853-pinctrl 2000000.pinctrl: initialized sunXi PIO driver
-[    0.576589] usb_phy_generic usb_phy_generic.1.auto: dummy supplies not allowed for exclusive requests (id=vbus)
-[    0.628645] printk: legacy console [ttyGS0] enabled
-[    0.634058] printk: legacy bootconsole [uart8250] disabled
-[    0.648574] g_serial gadget.0: Gadget Serial v2.4
-[    0.648654] g_serial gadget.0: g_serial ready
-[    0.649555] clk: Not disabling unused clocks
-[    0.654771] Freeing initrd memory: 1032K
-[    0.655545] Freeing unused kernel image (initmem) memory: 152K
-[    0.655609] Kernel memory protection not selected by kernel config.
-[    0.655664] Run /init as init process
-[    0.655694]   with arguments:
-[    0.655721]     /init
-[    0.655746]   with environment:
-[    0.655771]     HOME=/
-[    0.655798]     TERM=linux
-[    0.688311] V851S RAM stage1: init started
-SHELL_PROOF_b3aa1217bdb3a052
+[    0.008818] Switching to timer-based delay loop, resolution 41ns
+[    0.015755] clocksource: timer: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 79635851949 ns
+[    0.026721] Console: colour dummy device 80x30
+[    0.031689] Calibrating delay loop (skipped), value calculated using timer frequency.. 48.00 BogoMIPS (lpj=240000)
+[    0.043123] CPU: Testing write buffer coherency: ok
+[    0.048545] pid_max: default: 32768 minimum: 301
+[    0.053994] Mount-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.062066] Mountpoint-cache hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.071267] VFS: Finished mounting rootfs on nullfs
+[    0.078938] Setting up static identity map for 0x40008240 - 0x4000827c
+[    0.086801] Memory: 120492K/131072K available (3784K kernel code, 927K rwdata, 736K rodata, 164K init, 310K bss, 9868K reserved, 0K cma-reserved)
+[    0.102089] devtmpfs: initialized
+[    0.113661] VFP support v0.3: implementor 41 architecture 2 part 30 variant 7 rev 5
+[    0.122457] posixtimers hash table entries: 512 (order: 0, 2048 bytes, linear)
+[    0.130435] futex hash table entries: 256 (3072 bytes on 1 NUMA nodes, total 3 KiB, linear).
+[    0.141919] NET: Registered PF_NETLINK/PF_ROUTE protocol family
+[    0.149005] DMA: preallocated 256 KiB pool for atomic coherent allocations
+[    0.159037] printk: legacy console [ramoops-1] enabled
+[    0.165206] pstore: Registered ramoops as persistent store backend
+[    0.172069] ramoops: using 0x100000@0x47f00000, ecc: 0
+[    0.181587] /soc/interrupt-controller@3021000: Fixed dependency cycle(s) with /soc/interrupt-controller@3021000
+[    0.192961] /soc/mixer@5100000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
+[    0.201563] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/lcd-controller@5461000
+[    0.211006] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/mixer@5100000
+[    0.219578] /soc/lcd-controller@5461000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
+[    0.233043] /soc/mixer@5100000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
+[    0.242435] /soc/mixer@5100000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
+[    0.251141] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/lcd-controller@5461000
+[    0.260598] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/mixer@5100000
+[    0.269653] /soc/tcon-top@5460000: Fixed dependency cycle(s) with /soc/lcd-controller@5461000
+[    0.279253] /soc/lcd-controller@5461000: Fixed dependency cycle(s) with /soc/tcon-top@5460000
+[    0.293401] clocksource: Switched to clocksource arch_sys_counter
+[    0.319447] NET: Registered PF_INET protocol family
+[    0.325352] IP idents hash table entries: 2048 (order: 2, 16384 bytes, linear)
+[    0.334664] tcp_listen_portaddr_hash hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.344077] Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+[    0.352725] TCP established hash table entries: 1024 (order: 0, 4096 bytes, linear)
+[    0.361240] TCP bind hash table entries: 1024 (order: 1, 8192 bytes, linear)
+[    0.369068] TCP: Hash tables configured (established 1024 bind 1024)
+[    0.376247] UDP hash table entries: 256 (order: 1, 8192 bytes, linear)
+[    0.383827] NET: Registered PF_UNIX/PF_LOCAL protocol family
+[    0.391621] Unpacking initramfs...
+[    0.395800] workingset: timestamp_bits=30 (anon: 25) max_order=15 bucket_order=0 (anon: 0)
+[    0.420693] sunxi-sram 3000000.syscon: probe with driver sunxi-sram failed with error -95
+[    0.446744] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+[    0.470064] sun6i-rtc 7090000.rtc: registered as rtc0
+[    0.484524] NET: Registered PF_PACKET protocol family
+[    0.556169] gpio gpiochip0: Static allocation of GPIO base is deprecated, use dynamic allocation.
+[    0.628067] sun8i-v853-pinctrl 2000000.pinctrl: initialized sunXi PIO driver
+[    0.644494] usb_phy_generic usb_phy_generic.1.auto: dummy supplies not allowed for exclusive requests (id=vbus)
+[    0.675895] clk: Not disabling unused clocks
+[    0.749348] Freeing initrd memory: 1548K
+[    0.754003] Warning: unable to open an initial console.
+[    0.760280] Freeing unused kernel image (initmem) memory: 164K
+[    0.766767] Kernel memory protection not selected by kernel config.
+[    0.773737] Run /init as init process
+[    0.777769]   with arguments:
+[    0.781037]     /init
+[    0.783571]   with environment:
+[    0.787032]     HOME=/
+[    0.789632]     TERM=linux
+[    0.836426] V851S RAM stage1: init started
+[    0.847407] V851S init: descriptors set
+[    0.858454] V851S init: strings set
+[    0.867060] printk: legacy console [ttyGS0] enabled
+[    0.872477] printk: legacy bootconsole [uart8250] disabled
+[    0.884496] V851S init: ACM created
+[    0.889768] V851S init: NCM created
+[    0.890303] V851S init: NCM ifname set
+[    0.890962] V851S init: NCM MACs set
+[    0.901262] V851S init: functions linked
+[    0.921216] configfs-gadget.v851s gadget.0: HOST MAC 02:1a:85:10:00:02
+[    0.921300] configfs-gadget.v851s gadget.0: MAC 02:1a:85:10:00:01
+[    0.922109] V851S RAM stage1: ACM+NCM bound to musb-hdrc.2.auto
+[    3.993627] V851S RAM stage1: network startup attempted
+[    3.994831] [53] Jan 01 00:00:03 Running in background
+SHELL_PROOF_83b72fe2728a514a

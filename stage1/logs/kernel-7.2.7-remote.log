@@ -1,0 +1,14 @@
+Linux (none) 7.2.7-v851s-ram-stage1 #1 Thu Sep 24 23:48:50 UTC 2026 armv7l GNU/Linux
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue qlen 1000
+    inet 127.0.0.1/8 scope host lo
+       valid_lft forever preferred_lft forever
+2: usb0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast qlen 1000
+    inet 10.77.0.1/24 scope global usb0
+       valid_lft forever preferred_lft forever
+   51 root      0:00 udhcpd /etc/udhcpd.conf
+   53 root      0:02 dropbear -j -k -P /run/dropbear.pid -p 10.77.0.1:22 -r /etc/dropbear/dropbear_ed25519_host_key
+   65 root      0:00 dropbear -j -k -P /run/dropbear.pid -p 10.77.0.1:22 -r /etc/dropbear/dropbear_ed25519_host_key
+   66 root      0:00 sh -c uname -a; ip -4 addr show dev lo; ip -4 addr show dev usb0; ps | grep -E "udhcpd|dropbear"; cat /run/udhcpd.pid /run/dropbear.pid
+   71 root      0:00 grep -E udhcpd|dropbear
+51
+53

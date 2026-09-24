@@ -19,6 +19,10 @@ stage1/logs/*
 !stage1/logs/network-remote-state.log
 !stage1/logs/network-usb-shell.log
 !stage1/logs/network-validation.json
+!stage1/logs/usb-shell-6.13.log
+!stage1/logs/kernel-7.2.7-network.log
+!stage1/logs/kernel-7.2.7-remote.log
+!stage1/logs/kernel-7.2.7-validation.json
 
 .DS_Store
 __pycache__/

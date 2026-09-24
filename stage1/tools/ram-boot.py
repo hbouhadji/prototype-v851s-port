@@ -222,7 +222,7 @@ def boot():
     if read(COOKIE_ADDR, 32) != bytes.fromhex(record['cookie']):
         raise RuntimeError('RAM test cookie lost: repeat DDR initialization and RAM test')
     call('write32', '0x020500b8', '0x16aa0000')
-    image = OUT / 'linux/arch/arm/boot/Image'
+    image = OUT / 'linux-7.2.7/arch/arm/boot/Image'
     if not image.exists() or image.stat().st_size >= 0x1f00000:
         raise RuntimeError('Uncompressed kernel would overlap uploaded zImage')
     files = [(0x42000000, 'zImage', 0x1000000),

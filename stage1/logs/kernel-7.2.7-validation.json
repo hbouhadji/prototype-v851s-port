@@ -1,0 +1,31 @@
+{
+  "time_utc": "2026-09-24T23:53:38+00:00",
+  "status": "hardware_validated",
+  "kernel": "7.2.7-v851s-ram-stage1",
+  "source_archive_sha256": "4ac34c47db2540ffb2713943f8d891ff1702e0ba6934525a493b7d1cad43145a",
+  "patch_fresh_extract": "applies without rejects",
+  "memory": "128 MiB, two uncached passes passed",
+  "usb": "ACM console and CDC-NCM composite gadget",
+  "macos_ncm_interface": "en22",
+  "macos_dhcp_ipv4": "10.77.0.2",
+  "device_usb_ipv4": "10.77.0.1/24",
+  "device_loopback_ipv4": "127.0.0.1/8",
+  "network": [
+    "DHCP lease",
+    "ICMP ping 2/2",
+    "SSH remote command",
+    "udhcpd and Dropbear processes"
+  ],
+  "images": {
+    "zImage": "069fed1e47b931f0db94143ae1c7b54bf8f9b7ca68ae4d57031335f8d5fc8e74",
+    "board.dtb": "ae8a8b3d912e1c01be4797c48013ea1d1d537d8c235ae63dc0c7755410ead8a2",
+    "initramfs.cpio.gz": "4cc19f123b82dbf9964b1a9aee0c1cb39aeea54d4bac69f857a855ffedb78a5c",
+    "launch.bin": "9a99cf601f9a44f6b8b08cfff6ffd0febed6ba132736bc6a6a81bc98b56355b2"
+  },
+  "evidence": [
+    "logs/usb-shell.log",
+    "logs/kernel-7.2.7-network.log",
+    "logs/kernel-7.2.7-remote.log"
+  ],
+  "flash_writes_during_ram_boot": false
+}
