@@ -1,0 +1,5 @@
+# Preserve upstream patch formatting and the raw UART-over-USB transcript.
+stage1/downloads/*.patch whitespace=nowarn
+stage1/configs/*.patch whitespace=nowarn
+stage1/boot/xfel-v851_v853.c whitespace=nowarn
+stage1/logs/usb-shell.log whitespace=nowarn

@@ -1,0 +1,21 @@
+# Device-specific firmware and recovery images
+firmware-*.bin
+
+# Downloaded third-party trees, archives, and generated images
+stage1/src/
+stage1/out/
+stage1/downloads/*
+!stage1/downloads/linux-6.13-rc1-wip.patch
+!stage1/downloads/SHA256SUMS
+stage1/tools/xfel
+
+# Transient device/build logs; retain small hardware validation evidence
+stage1/logs/*
+!stage1/logs/stage1-validation.json
+!stage1/logs/ram-test-result.json
+!stage1/logs/ddr-awboot-result.json
+!stage1/logs/usb-shell.log
+
+.DS_Store
+__pycache__/
+*.pyc

@@ -1,0 +1,33 @@
+--- a/fel.c
++++ b/fel.c
+@@ -1,4 +1,12 @@
+ #include <fel.h>
++
++/* Long-running SRAM memory tests need more than the default ten seconds. */
++static unsigned ram_test_usb_timeout(void)
++{
++    const char *value = getenv("XFEL_USB_TIMEOUT_MS");
++    unsigned timeout = value ? (unsigned)strtoul(value, NULL, 10) : 10000;
++    return timeout >= 1000 && timeout <= 120000 ? timeout : 10000;
++}
+ 
+ extern struct chip_t a10;
+ extern struct chip_t a13_a10s_r8;
+@@ -107,7 +115,7 @@
+ 	while(len > 0)
+ 	{
+ 		chunk = len < max_chunk ? len : max_chunk;
+-		r = libusb_bulk_transfer(hdl, ep, (void *)buf, chunk, &bytes, 10000);
++		r = libusb_bulk_transfer(hdl, ep, (void *)buf, chunk, &bytes, ram_test_usb_timeout());
+ 		if(r != 0)
+ 		{
+ 			printf("usb bulk send error\r\n");
+@@ -124,7 +132,7 @@
+ 
+ 	while(len > 0)
+ 	{
+-		r = libusb_bulk_transfer(hdl, ep, (void *)buf, len, &bytes, 10000);
++		r = libusb_bulk_transfer(hdl, ep, (void *)buf, len, &bytes, ram_test_usb_timeout());
+ 		if(r != 0)
+ 		{
+ 			printf("usb bulk recv error\r\n");

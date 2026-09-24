@@ -1,0 +1,21 @@
+{
+  "time": "2026-09-25T00:15:37.734909+02:00",
+  "status": "hardware_validated",
+  "soc": "Allwinner V851/V853 FEL ID 0x00188600",
+  "dram_bytes": 134217728,
+  "dram_test_passes": 2,
+  "kernel": "6.13.0-rc1-v851s-ram-stage1",
+  "usb_port": "/dev/cu.usbmodem1101",
+  "shell": "BusyBox ash",
+  "linux_memtotal_kib": 124412,
+  "shell_challenge": "b3aa1217bdb3a052",
+  "transcript": "logs/usb-shell.log",
+  "ram_test": "logs/ram-validated.json",
+  "images": {
+    "zImage": "0c69ee5c919cd8c380c14dd2704677c91f0017c5d710d19f8f15aed5c45c5acb",
+    "board.dtb": "5e81eed305c5836ad486ebc9489c17345645697be9e569d9d8f4037a75e1144a",
+    "initramfs.cpio.gz": "38df6f7c2ff1d47b374bd1670973c97a287a0f75683545986dd17455f9479aea",
+    "launch.bin": "9a99cf601f9a44f6b8b08cfff6ffd0febed6ba132736bc6a6a81bc98b56355b2"
+  },
+  "flash_writes_during_ram_boot": false
+}

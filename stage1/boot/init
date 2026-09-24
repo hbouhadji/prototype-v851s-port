@@ -1,0 +1,18 @@
+#!/bin/sh
+export PATH=/bin:/sbin:/usr/bin:/usr/sbin
+mount -t devtmpfs devtmpfs /dev
+mkdir -p /dev/pts /proc /sys /tmp /run
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devpts devpts /dev/pts
+mount -t tmpfs tmpfs /tmp
+echo "V851S RAM stage1: init started" > /dev/kmsg
+while [ ! -c /dev/ttyGS0 ]; do sleep 1; done
+# Keep automatic FEL recovery until the host has enumerated the USB gadget.
+while ! grep -q configured /sys/class/udc/*/state 2>/dev/null; do sleep 1; done
+devmem 0x020500b8 32 0x16aa0000
+while true; do
+    printf '\r\nV851S RAM stage1 - BusyBox USB shell\r\n' > /dev/ttyGS0
+    setsid cttyhack sh -i < /dev/ttyGS0 > /dev/ttyGS0 2>&1
+    sleep 1
+done
