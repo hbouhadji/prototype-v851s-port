@@ -4,11 +4,15 @@ cd /work
 export ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf-
 JOBS=${JOBS:-8}
 BB=/work/src/busybox-1.37.0
-LINUX=/work/src/linux-7.2.7
-LINUX_OUT=/work/out/linux-7.2.7
+LINUX=/work/src/patchew-v2/linux-7.2.7
+LINUX_OUT=/work/out/linux-7.2.7-patchew-v2
 DROPBEAR=/work/src/dropbear-2026.94
+if [ ! -d "$LINUX" ]; then
+    mkdir -p /work/src/patchew-v2
+    tar -xJf /work/downloads/linux-7.2.7.tar.xz -C /work/src/patchew-v2
+fi
 if [ ! -f "$LINUX/drivers/clk/sunxi-ng/ccu-sun8i-v853.c" ]; then
-    patch -d "$LINUX" -p1 < configs/linux-7.2.7-v853-stage1.patch
+    patch -d "$LINUX" -p1 < configs/linux-7.2.7-v853-patchew-v2.patch
 fi
 if ! grep -q '"allwinner,sun8i-v853"' "$LINUX/arch/arm/mach-sunxi/sunxi.c"; then
     patch -d "$LINUX" -p1 < configs/0001-v853-machine.patch
@@ -60,7 +64,8 @@ mkdir -p "$ROOTFS"/{dev,proc,sys,tmp,run}
 if [ ! -e "$ROOTFS/dev/console" ]; then mknod "$ROOTFS/dev/console" c 5 1; fi
 if [ ! -e "$ROOTFS/dev/null" ]; then mknod "$ROOTFS/dev/null" c 1 3; fi
 (cd "$ROOTFS" && find . -print0 | LC_ALL=C sort -z | cpio --null -o --format=newc --owner=0:0) | gzip -n > out/initramfs.cpio.gz
-cp configs/sun8i-v851s-dongle-stage1.dts "$LINUX/arch/arm/boot/dts/allwinner/"
+cp configs/sun8i-v851s-dongle-stage1-patchew-v2.dts \
+    "$LINUX/arch/arm/boot/dts/allwinner/sun8i-v851s-dongle-stage1.dts"
 if ! grep -q sun8i-v851s-dongle-stage1 "$LINUX/arch/arm/boot/dts/allwinner/Makefile"; then
     echo 'dtb-$(CONFIG_MACH_SUN8I) += sun8i-v851s-dongle-stage1.dtb' >> "$LINUX/arch/arm/boot/dts/allwinner/Makefile"
 fi

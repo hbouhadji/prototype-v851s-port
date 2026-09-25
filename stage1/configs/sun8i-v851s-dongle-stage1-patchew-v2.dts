@@ -1,0 +1,36 @@
+/dts-v1/;
+#include "sun8i-v853.dtsi"
+
+/ {
+    model = "V85x dongle RAM-only stage1";
+    compatible = "catplay,v851s-dongle-stage1", "allwinner,sun8i-v853";
+    /delete-node/ thermal-zones;
+    aliases { serial0 = &uart0; };
+    chosen {
+        bootargs = "rdinit=/init console=ttyGS0,115200 earlycon=uart8250,mmio32,0x02500000 loglevel=8 ignore_loglevel clk_ignore_unused panic=0";
+        linux,initrd-start = <0x44000000>;
+        linux,initrd-end = <0x44000000>; /* patched by build script */
+    };
+    memory@40000000 {
+        device_type = "memory";
+        reg = <0x40000000 0x08000000>;
+    };
+    reserved-memory {
+        #address-cells = <1>;
+        #size-cells = <1>;
+        ranges;
+        ramoops@47f00000 {
+            compatible = "ramoops";
+            reg = <0x47f00000 0x00100000>;
+            record-size = <0x00020000>;
+            console-size = <0x00080000>;
+        };
+    };
+};
+&cpu0 { /delete-property/ operating-points-v2; };
+&mbus { status = "disabled"; };
+&usb_otg { dr_mode = "peripheral"; status = "okay"; };
+&usbphy { status = "okay"; };
+&ehci0 { status = "disabled"; };
+&ohci0 { status = "disabled"; };
+&dcxo { clock-frequency = <24000000>; };
